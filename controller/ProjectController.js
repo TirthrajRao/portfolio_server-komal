@@ -15,7 +15,7 @@ module.exports = {
 		if(typeof req.body.hashtag === 'string'){
 			req.body.hashtag = req.body.hashtag.split(',');
 		}
-		// console.log("file============>",file)
+		console.log("file============>",req.body);
 		return projectValidation.createproject(req.body).then((data) => {
 			return projectService.createProject(data, file).then(() => {
 				res.status(201).json({
@@ -23,7 +23,7 @@ module.exports = {
 					message: "Project created"
 				});
 			}).catch((err) => {
-				console.log("on line 12 >>>>>>>>>>>>", err);
+				console.log("on line 26 >>>>>>>>>>>>", err);
 				res.status(500).json({
 					code: 500,
 					message: "Internal server error"

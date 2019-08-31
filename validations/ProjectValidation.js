@@ -2,8 +2,8 @@ const Joi = require('joi');
 
 module.exports = {
 	createproject(body) {
-		console.log('body============>',body)
 		return new Promise((resolve, reject) => {
+			console.log('req.body in validation============>',body)
 			const schema = Joi.object().keys({
 				title: Joi.string().required(),
 				desc: Joi.string().required(),
@@ -13,7 +13,8 @@ module.exports = {
 				fontFamily: Joi.string(),
 				products: Joi.string(),
 				services: Joi.string(),
-				features: Joi.string()
+				features: Joi.string(),
+				hashtag:Joi.array()
 			});
 	
 			Joi.validate(body, schema, { convert: true }, (err, value) => {

@@ -3,15 +3,35 @@ const categoryModel = require("../models/category");
 const hashtagModel = require("../models/hashtag");
 const fileUploader = require("./fileUpload");
 const ObjectId = require('mongodb').ObjectId;
+const _ = require('lodash');
 
 module.exports = {
     createProject: (data, file) => {
+        console.log('data================>', data)
         return new Promise((resolve, reject) => {
             const newProject = new projectModel(data);
             newProject.save((err, savedProject) => {
                 if (err) {
                     reject(err);
                 } else {
+                    console.log('data.hashtag=============>', data.hashtag)
+                    _.forEach(data.hashtag, function (tag) {
+                        console.log('tag===============>', tag);
+                        hashtagModel.findOneAndUpdate({ hashtag: tag }, { upsert: true, new: true })
+                            .exec((err, foundTag) => {
+                                if (err) {
+                                    reject(err);
+                                    console.log('err------------------>', err);
+                                } else if (!foundTag) {
+                                    console.log('foundTag===============>', foundTag);
+                                    let obj = {
+                                        hashtag: tag,
+                                    }
+                                    let hashnew = new hashtagModel(obj);
+                                    hashnew.save();
+                                }
+                            })
+                    })
                     const uploadPath = savedProject.title + "/media/"
                     return fileUploader.uploadFile(uploadPath, file).then((uploadFiles) => {
                         if (uploadFiles.length) {
@@ -99,6 +119,7 @@ module.exports = {
             if (body.searchKey) query['$and'].push({ $or: [{ 'title': { $regex: new RegExp(body.searchKey, 'i') } }, { 'desc': { $regex: new RegExp(body.searchKey, 'i') } }] });
             if (body.technology) query['$and'].push({ 'technology._id': { '$eq': ObjectId(body.technology) } });
             if (body.category) query['$and'].push({ 'category': { '$eq': ObjectId(body.category) } });
+            if(body.hashtag) query['$and'].push({'hashtag':{'$in':body.hashtag}});
             console.log("query", JSON.stringify(query, null, 2))
             projectModel.aggregate([
                 {
@@ -128,26 +149,26 @@ module.exports = {
         })
     },
 
-    updateProject: (data, file,projectId) => {
+    updateProject: (data, file, projectId) => {
         console.log('req in service===========>', data, file);
         return new Promise((resolve, reject) => {
-            projectModel.findOneAndUpdate({ _id:projectId }, data, { upsert: true, new: true }, function (err, updateProject) {
+            projectModel.findOneAndUpdate({ _id: projectId }, data, { upsert: true, new: true }, function (err, updateProject) {
                 if (err) {
                     reject(err);
                 } else {
-                    console.log('updateProject==============>',updateProject)
+                    console.log('updateProject==============>', updateProject)
                     const uploadPath = updateProject.title + "/media/"
                     return fileUploader.uploadFile(uploadPath, file).then((uploadFiles) => {
-                        console.log('uploadfiles=============>',uploadFiles.length,uploadFiles)
+                        console.log('uploadfiles=============>', uploadFiles.length, uploadFiles)
                         if (uploadFiles.length) {
                             let images = updateProject.images;
                             for (let i = 0; i < uploadFiles.length; i++) {
                                 images.push(uploadFiles[i].fd.split('/uploads/').reverse()[0]);
-                                console.log('image in loop================>',images)
+                                console.log('image in loop================>', images)
                             }
-                            console.log('images=============>',images)
+                            console.log('images=============>', images)
                             projectModel.findOneAndUpdate({ _id: projectId }, { images: images }, { upsert: true, new: true }).exec((error, updated) => {
-                                console.log("updated================>",updated)
+                                console.log("updated================>", updated)
                                 if (error) {
                                     reject(error);
                                 } else {
@@ -160,58 +181,67 @@ module.exports = {
                     }).catch((err) => {
                         reject(err);
                     });
-                    
+
                 }
             })
 
         })
 
     },
-    deleteProject:(projetcId)=>{
+    deleteProject: (projetcId) => {
         return new Promise((resolve, reject) => {
-            projectModel.findOneAndDelete({_id:projetcId},function(err,project){
-                if(err){
+            projectModel.findOneAndDelete({ _id: projetcId }, function (err, project) {
+                if (err) {
                     reject(err);
-                }else{
-                    console.log('project==========>',project);
+                } else {
+                    console.log('project==========>', project);
                     resolve(project);
                 }
             })
         })
     },
-    createHashtag:(data)=>{
-        console.log("data in hashtag===============",data)
+    createHashtag: (data) => {
+        console.log("data in hashtag===============", data)
         return new Promise((resolve, reject) => {
             const newHashtag = new hashtagModel(data);
             hashtagModel.findOneAndUpdate({ hashTag: data.hashTag }, { upsert: true, new: true })
-            .exec((err, foundTag) => {
-                if (err) {
-                    reject({ status: 500, message: 'Internal Serevr Error' });
-                    console.log('err------------------>', err);
-                } else if (!foundTag) {
-                    newHashtag.save((err, tag) => {
-                        if (err) {
-                            reject(err);
-                            console.log('err------------------>', err);
-                        } else {
-                            console.log('hastag=================>', tag);
-                            resolve(tag);
-                        }
-                    })
-                } else {
-                    console.log("=============foundTag=================>", foundTag);
-                    resolve(foundTag);
-                }
-            })
-            
+                .exec((err, foundTag) => {
+                    if (err) {
+                        reject({ status: 500, message: 'Internal Serevr Error' });
+                        console.log('err------------------>', err);
+                    } else if (!foundTag) {
+                        newHashtag.save((err, tag) => {
+                            if (err) {
+                                reject(err);
+                                console.log('err------------------>', err);
+                            } else {
+                                console.log('hastag=================>', tag);
+                                resolve(tag);
+                            }
+                        })
+                    } else {
+                        console.log("=============foundTag=================>", foundTag);
+                        resolve(foundTag);
+                    }
+                })
+
         })
     },
-    getAllHashTag:()=>{
+    getAllHashTag: () => {
         return new Promise((resolve, reject) => {
-            hashtagModel.find({},function(err,tag){
-                if(err){
+            hashtagModel.aggregate([
+                { $match: {} },
+                {
+                    $project:
+                    {
+                        _id : 0 ,
+                        hashtag: 1
+                    }
+                }
+            ]).exec((err, tag) => {
+                if (err) {
                     reject(err);
-                }else{
+                } else {
                     console.log(tag);
                     resolve(tag)
                 }
