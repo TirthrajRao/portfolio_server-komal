@@ -122,7 +122,7 @@ module.exports = {
             };
             if (body.searchKey) query['$and'].push({ $or: [{ 'title': { $regex: new RegExp(body.searchKey, 'i') } }, { 'desc': { $regex: new RegExp(body.searchKey, 'i') } }] });
             if (body.technology) query['$and'].push({ 'technology._id': { '$eq': ObjectId(body.technology) } });
-            if (body.category) query['$and'].push({ 'category': { '$eq': ObjectId(body.category) } });
+            if (body.category) query['$and'].push({ 'category._id': { '$eq': ObjectId(body.category) } });
             if(body.hashtag) query['$and'].push({'hashtag':{'$in':body.hashtag}});
             console.log("query", JSON.stringify(query, null, 2))
             projectModel.aggregate([
