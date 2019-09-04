@@ -6,6 +6,7 @@ const TechnologyRoute = require("./TechnologyRoutes");
 const CategoryRoute = require("./CategoryRoutes");
 const ContactRoute = require('./ContactRoutes');
 const HashtagRoute = require('./HashtagRoute');
+const AdminRoute = require('./AdminRoute');
 // middleware to use for all requests
 router.use((req, res, next) => {
 	res.header("Access-Control-Allow-Origin", "*");
@@ -22,5 +23,6 @@ module.exports = function (app) {
 	router.use('/category', CategoryRoute);
 	router.use('/contact-us', ContactRoute);
 	router.use('/hashtag', HashtagRoute);
+	router.use('/admin', AdminRoute)
 	app.use("/api", router);
 };

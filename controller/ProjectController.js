@@ -2,20 +2,21 @@ const projectService = require("../services/project.service");
 const projectValidation = require('../validations/ProjectValidation');
 module.exports = {
 	createProject: (req, res) => {
-		console.log('req.body=========>',req.body);
-		console.log('req.body=========>',req.file);
+		console.log('req.body=controller========>', req.body);
+		console.log('req.file in controller=========>', req.file);
 		const file = req.file('uploadFile');
 		delete req.body.images;
-		if(typeof req.body.technology === 'string'){
+		delete req.body.uploadFile;
+		if (typeof req.body.technology === 'string') {
 			req.body.technology = req.body.technology.split(',');
 		}
-		if(typeof req.body.colorPalette === 'string'){
+		if (typeof req.body.colorPalette === 'string') {
 			req.body.colorPalette = req.body.colorPalette.split(',');
 		}
-		if(typeof req.body.hashtag === 'string'){
+		if (typeof req.body.hashtag === 'string') {
 			req.body.hashtag = req.body.hashtag.split(',');
 		}
-		console.log("file============>",req.body);
+		console.log("body in ============>", req.body);
 		return projectValidation.createproject(req.body).then((data) => {
 			return projectService.createProject(data, file).then(() => {
 				res.status(201).json({
@@ -45,7 +46,7 @@ module.exports = {
 				message: "got the data",
 				data: data
 			})
-		}).catch((err) =>{ 
+		}).catch((err) => {
 			console.log("on line 36 >>>>>>>>>>>>", err);
 			res.status(500).json({
 				code: 500,
@@ -103,17 +104,20 @@ module.exports = {
 		})
 	},
 
-	updateProject:(req,res)=>{
-		console.log('req.body===========>',req.body,req.params.projectId);
+	updateProject: (req, res) => {
+		console.log('req.body===========>', req.body, req.params.projectId);
 		const file = req.file('uploadFile');
 		delete req.body.images;
-		if(typeof req.body.technology === 'string'){
+		if (typeof req.body.technology === 'string') {
 			req.body.technology = req.body.technology.split(',');
 		}
-		if(typeof req.body.colorPalette === 'string'){
+		if (typeof req.body.colorPalette === 'string') {
 			req.body.colorPalette = req.body.colorPalette.split(',');
 		}
-		return projectService.updateProject(req.body,file,req.params.projectId).then((data) => {
+		if (typeof req.body.hashtag === 'string') {
+			req.body.hashtag = req.body.hashtag.split(',');
+		}
+		return projectService.updateProject(req.body, file, req.params.projectId).then((data) => {
 			res.status(200).json({
 				code: 200,
 				message: "project updated",
@@ -127,7 +131,7 @@ module.exports = {
 			});
 		})
 	},
-	deleteProject:(req,res)=>{
+	deleteProject: (req, res) => {
 		return projectService.deleteProject(req.params.projectId).then((data) => {
 			res.status(200).json({
 				code: 200,

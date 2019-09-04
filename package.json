@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/TirthrajRao/portfolioServer#readme",
   "dependencies": {
+    "bcrypt": "^3.0.6",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
     "cli-color": "^1.2.0",
