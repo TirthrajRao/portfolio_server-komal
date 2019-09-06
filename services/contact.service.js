@@ -54,5 +54,17 @@ module.exports = {
                 }
             });
         });
+    },
+    getAllContactRequest:()=>{
+        return new Promise((resolve, reject) => {
+            ContactModel.find({},function(err,contacts){
+                if (err) {
+                    reject(err);
+                } else {
+                    console.log("data==========>",contacts);
+                    resolve(contacts)
+                }
+            })
+        })
     }
 }

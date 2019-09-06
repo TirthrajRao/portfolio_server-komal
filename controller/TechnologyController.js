@@ -3,8 +3,15 @@ const TechnologyService = require("../services/technology.service");
 
 module.exports = {
 	createTechnology: (req, res) => {
+		// console.log('req.body in controller=========>', req.body);
+		console.log('req.file in controller=========>', req.file);
+		if (req.file.length) {
+			delete req.body.logo;
+		}
+		const file = req.file('uploadFile');
+		delete req.body.uploadFile;
 		return TechnologyValidation.createTechnology(req.body).then((data) => {
-			return TechnologyService.createTechnology(data).then(() => {
+			return TechnologyService.createTechnology(data, file).then(() => {
 				res.status(201).json({
 					code: 201,
 					message: "Technology created"
@@ -41,9 +48,15 @@ module.exports = {
 		})
 	},
 
-	updateTechnology:(req,res)=>{
-		console.log('req.body=========>',req.body,req.params.technologyId);
-		return TechnologyService.updateTechnology(req.body,req.params.technologyId).then((data) => {
+	updateTechnology: (req, res) => {
+		console.log('req.body=========>', req.body, req.params.technologyId);
+		console.log('req.file in controller=========>', req.file);
+		if (req.file.length) {
+			delete req.body.logo;
+		}
+		const file = req.file('uploadFile');
+		delete req.body.uploadFile;
+		return TechnologyService.updateTechnology(req.body, req.params.technologyId,file).then((data) => {
 			res.status(200).json({
 				code: 200,
 				message: "Technology updated",
@@ -57,8 +70,8 @@ module.exports = {
 			});
 		})
 	},
-	deleteTechnology:(req,res)=>{
-		console.log('req.body=========>',req.params.technologyId);
+	deleteTechnology: (req, res) => {
+		console.log('req.body=========>', req.params.technologyId);
 		return TechnologyService.deleteTechnology(req.params.technologyId).then((data) => {
 			res.status(200).json({
 				code: 200,
@@ -73,8 +86,8 @@ module.exports = {
 			});
 		})
 	},
-	getTechnologyById:(req,res)=>{
-		console.log('req.body=========>',req.params.technologyId);
+	getTechnologyById: (req, res) => {
+		console.log('req.body=========>', req.params.technologyId);
 		return TechnologyService.getTechnologyById(req.params.technologyId).then((data) => {
 			res.status(200).json({
 				code: 200,

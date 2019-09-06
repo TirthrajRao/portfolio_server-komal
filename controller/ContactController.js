@@ -23,5 +23,21 @@ module.exports = {
 				message: "Internal server error"
 			});
 		});
+	},
+
+	getAllContactRequest:(req,res)=>{
+		return ContactService.getAllContactRequest().then((data)=>{
+			res.status(200).json({
+				code: 200,
+				message: "got the data",
+				data:data
+			});
+		}).catch((err) => {
+			console.log("on line 19 >>>>>>>>>>>>", err);
+			res.status(500).json({
+				code: 500,
+				message: "Internal server error"
+			});
+		});
 	}
 };

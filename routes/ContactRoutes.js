@@ -9,5 +9,6 @@ const ApiAuthService = require("../services/ApiAuth");
 const ContactController = require("../controller/ContactController");
 
 router.post("/", ContactController.createContact);
+router.get("/", ContactController.getAllContactRequest)
 
 module.exports = router;

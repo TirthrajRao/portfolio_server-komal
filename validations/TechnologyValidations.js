@@ -5,7 +5,8 @@ module.exports = {
 		return new Promise((resolve, reject) => {
 			const schema = Joi.object().keys({
 				name: Joi.string().required(),
-				desc: Joi.string()
+				desc: Joi.string(),
+				logo:Joi.string().allow('', null).default(''),
 			});
 
 			Joi.validate(body, schema, { convert: true }, (err, value) => {
